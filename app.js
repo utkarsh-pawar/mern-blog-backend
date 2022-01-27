@@ -21,9 +21,9 @@ app.listen(PORT, () => {
   console.log("server is listening on port 5000");
 });
 
-app.get("/",(req,res) =>{
-  res.send("hello world")
-})
+// app.get("/",(req,res) =>{
+//   res.send("hello world")
+// })
 
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/blogs", blogRoute);
