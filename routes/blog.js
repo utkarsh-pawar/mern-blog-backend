@@ -40,11 +40,14 @@ router.post("/", postVerification, upload.single("img"), async (req, res) => {
       content: req.body.content,
       img: req.file.path,
     });
-    console.log(req.file.mimetype); 
-    if(req.file.mimetype !== "image/jpeg" && req.file.mimetype !== "image/png" ){
-      return res.status(400).json("enter valid image type")
+    console.log(newBlog);
+    if (
+      req.file.mimetype !== "image/jpeg" &&
+      req.file.mimetype !== "image/png"
+    ) {
+      return res.status(400).json("enter valid image type");
     }
-    
+
     const savedBlog = await newBlog.save();
     res.json(savedBlog);
   } catch (err) {
