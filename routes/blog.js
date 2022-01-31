@@ -3,23 +3,40 @@ import Blog from "../models/blog.model.js";
 import { verifyToken } from "./authToken.js";
 import { postVerification } from "./authToken.js";
 import multer from "multer";
+import aws from "aws-sdk";
+import multerS3 from "multer-s3";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+aws.config.update({
+  secretAccessKey: process.env.AWS_ACCESS_KEY,
+  accessKeyId: process.env.AWS_ACCESS_ID,
+  region: "ap-south-1",
+});
 
 const router = express.Router();
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, new Date(Date.now()).toDateString() + "-" + file.originalname);
-  },
-});
+var s3 = new aws.S3();
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "./uploads/");
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, new Date(Date.now()).toDateString() + "-" + file.originalname);
+//   },
+// });
 
 const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 1024 * 1024 * 12,
-  },
+  storage: multerS3({
+    s3: s3,
+    bucket: "smallpost-storage",
+    key: function (req, file, cb) {
+      console.log(file);
+      cb(null, file.originalname);
+    },
+  }),
 });
 
 //get all blogs
@@ -34,13 +51,14 @@ router.get("/", async (req, res) => {
 
 router.post("/", postVerification, upload.single("img"), async (req, res) => {
   try {
+    console.log(req.file);
     const newBlog = await new Blog({
       userID: req.user.userID,
       title: req.body.title,
       content: req.body.content,
-      img: req.file.path,
+      img: req.file.location,
     });
-    console.log(newBlog);
+    // console.log(newBlog);
     if (
       req.file.mimetype !== "image/jpeg" &&
       req.file.mimetype !== "image/png"
