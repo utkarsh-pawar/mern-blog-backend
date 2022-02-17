@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import express from "express";
 
 export const verifyToken = async (req, res, next) => {
   try {

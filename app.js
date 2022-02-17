@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import userRoute from "./routes/user.js";
-import blogRoute from "./routes/blog.js";
+import userRoute from "./routes/userRoute.js";
+import blogRoute from "./routes/blogRoute.js";
 import bodyParser from "body-parser";
 
 dotenv.config();

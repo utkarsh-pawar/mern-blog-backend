@@ -3,9 +3,8 @@ import User from "../models/user.model.js";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { verifyToken } from "./authToken.js";
-import { verifyAdminToken } from "./authToken.js";
-import { postVerification } from "./authToken.js";
+import { verifyAdminToken, verifyToken } from "../middleware/authToken.js";
+
 
 const router = express.Router();
 

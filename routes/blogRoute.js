@@ -1,43 +1,13 @@
 import express from "express";
 import Blog from "../models/blog.model.js";
-import { verifyToken } from "./authToken.js";
-import { postVerification } from "./authToken.js";
-import multer from "multer";
-import aws from "aws-sdk";
-import multerS3 from "multer-s3";
 import dotenv from "dotenv";
-
-dotenv.config();
-
-aws.config.update({
-  secretAccessKey: process.env.AWS_ACCESS_KEY,
-  accessKeyId: process.env.AWS_ACCESS_ID,
-  region: "ap-south-1",
-});
+import { postVerification } from "../middleware/authToken.js";
+import upload from "../middleware/imageCloudUpload.js";
 
 const router = express.Router();
 
-var s3 = new aws.S3();
+dotenv.config();
 
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "./uploads/");
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, new Date(Date.now()).toDateString() + "-" + file.originalname);
-//   },
-// });
-
-const upload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: "smallpost-storage",
-    key: function (req, file, cb) {
-      console.log(file);
-      cb(null, file.originalname);
-    },
-  }),
-});
 
 //get all blogs
 router.get("/", async (req, res) => {
@@ -96,13 +66,16 @@ router.get("/:id", async (req, res) => {
 });
 
 //delete post
-router.delete("/:id", postVerification, async (reqe, res) => {
+router.delete("/:id", postVerification, async (req, res) => {
   try {
-    const post = await Blog.findOne({ _id: req.params.id });
-
-    if (req.user.userId !== post.userID) {
+    const post = await Blog.findById({ _id: req.params.id });
+    // console.log(post.userID);
+    // console.log(req.user.userID);
+    if (req.user.userID !== post.userID) {
       return res.status(400).send("you are not allowed to do that");
     }
+    const deletedBlog = await Blog.findByIdAndDelete({ _id: req.params.id });
+    res.status(200).json(deletedBlog);
   } catch (err) {
     res.status(400).send(err.message);
   }
