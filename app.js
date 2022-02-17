@@ -9,11 +9,12 @@ import bodyParser from "body-parser";
 dotenv.config();
 
 const app = express();
+app.use(cors());
 
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 app.use(bodyParser.json());
-app.use(cors());
+
 
 const PORT = process.env.PORT || 5000;
 
