@@ -5,7 +5,7 @@ export const verifyToken = async (req, res, next) => {
   try {
     const authHeader = await req.headers.auth;
     const token = await authHeader.split(" ")[1];
-    const user = await jwt.verify(token, process.env.JWT_KEY);
+    const user = jwt.verify(token, process.env.JWT_KEY);
     // console.log(user);
 
     if (user.userID === req.params.id) {
@@ -22,7 +22,7 @@ export const verifyToken = async (req, res, next) => {
 export const verifyAdminToken = async (req, res, next) => {
   const authHeader = await req.headers.auth;
   const token = await authHeader.split(" ")[1];
-  const user = await jwt.verify(token, process.env.JWT_KEY);
+  const user = jwt.verify(token, process.env.JWT_KEY);
   if (user.isAdmin) {
     next();
   } else {
