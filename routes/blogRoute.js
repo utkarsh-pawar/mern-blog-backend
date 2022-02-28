@@ -8,7 +8,6 @@ const router = express.Router();
 
 dotenv.config();
 
-
 //get all blogs
 router.get("/", async (req, res) => {
   try {
@@ -21,12 +20,20 @@ router.get("/", async (req, res) => {
 
 router.post("/", postVerification, upload.single("img"), async (req, res) => {
   try {
+    const { userID } = req.user;
+    const { title, content } = req.body;
+    const { location } = req.file;
+
+    if (!title || !content || !location) {
+      throw new Error("enter all required fields");
+    }
+    
     console.log(req.file);
     const newBlog = await new Blog({
-      userID: req.user.userID,
-      title: req.body.title,
-      content: req.body.content,
-      img: req.file.location,
+      userID: userID,
+      title: title,
+      content: content,
+      img: location,
     });
     // console.log(newBlog);
     if (
@@ -74,8 +81,8 @@ router.delete("/:id", postVerification, async (req, res) => {
     if (req.user.userID !== post.userID) {
       return res.status(400).send("you are not allowed to do that");
     }
-    const deletedBlog = await Blog.findByIdAndDelete({ _id: req.params.id });
-    res.status(200).json(deletedBlog);
+    await Blog.findByIdAndDelete({ _id: req.params.id });
+    res.status(200).json("your post is deleted");
   } catch (err) {
     res.status(400).send(err.message);
   }
